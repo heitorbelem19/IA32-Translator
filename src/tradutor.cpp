@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include "io_manager.hpp"
 #include "pre_processor.hpp"
+#include "translator.hpp"
 
 int main(int argc, char** argv){
   /*
@@ -24,6 +25,8 @@ int main(int argc, char** argv){
       pre_process_file << uploaded_file[i] << '\n';
     }
     pre_process_file.close();
+    translator tradutor;
+    tradutor.translate(uploaded_file);
   }
   else{
     std::cout << "Diretiva invalida\n";
