@@ -15,6 +15,8 @@ private:
   
   void check_ADD(std::deque<std::string> tokens);
   void check_SUB(std::deque<std::string> tokens);
+  void check_MUL(std::deque<std::string> tokens);
+  void check_DIV(std::deque<std::string> tokens);
 
   void check_JMP(std::deque<std::string> tokens);
   void check_JMPZ(std::deque<std::string> tokens);
@@ -27,6 +29,11 @@ private:
   void check_STORE(std::deque<std::string> tokens);
 
   void check_STOP(std::deque<std::string> tokens);
+
+  void check_SPACE(std::deque<std::string> tokens);
+  void check_CONST(std::deque<std::string> tokens);
+
+  void check_SECTION(std::deque<std::string> tokens);
 
   
 public:

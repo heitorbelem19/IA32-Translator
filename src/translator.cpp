@@ -57,6 +57,14 @@ void translator::check_SUB(std::deque<std::string> tokens){
   }
 }
 
+void translator::check_MUL(std::deque<std::string> tokens){
+
+}
+
+void translator::check_DIV(std::deque<std::string> tokens){
+
+}
+
 void translator::check_JMP(std::deque<std::string> tokens){
   this->section_text.emplace_back("jmp " + tokens[3] + "\n");
 }
@@ -158,6 +166,30 @@ void translator::check_STOP(std::deque<std::string> tokens){
     this->section_text.emplace_back("int 80h\n");
 }
 
+void translator::check_SPACE(std::deque<std::string> tokens){
+  this->section_bss.emplace_back(tokens[1] + " resb " + (tokens[5].empty() ? "1" : tokens[5]) + "\n");
+}
+
+void translator::check_CONST(std::deque<std::string> tokens){
+  this->section_data.emplace_back(tokens[1] + " db " + tokens[5] + "\n");
+}
+
+void translator::check_SECTION(std::deque<std::string> tokens){
+  if(tokens[3] == "TEXT"){
+    this->section_text.emplace_back("section .text\n");
+    this->section_text.emplace_back("global _start\n");
+    this->section_text.emplace_back("_start:\n"); 
+  }
+  else if(tokens[3] == "DATA"){
+    this->section_data.emplace_back("section .data\n");
+  }
+  else if(tokens[3] == "BSS"){
+    this->section_bss.emplace_back("section .bss\n");
+  }
+  else {
+    std::cout << "ERRO: Secao Invalida\n";
+  }
+}
 
 void translator::translate(std::vector<std::string> &uploaded_file){
   std::smatch matches;
@@ -189,8 +221,14 @@ void translator::translate(std::vector<std::string> &uploaded_file){
           this->check_SUB(tokens);
         }
         else if(tokens[2] == "MUL"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ": ");
+          this->check_MUL(tokens);
         }
         else if(tokens[2] == "DIV"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ": ");
+          this->check_DIV(tokens);
         }
         else if(tokens[2] == "JMP"){
           if(!tokens[1].empty())
@@ -233,8 +271,13 @@ void translator::translate(std::vector<std::string> &uploaded_file){
           this->check_STOP(tokens);
         }
         else if(tokens[2] == "SPACE"){
+          this->check_SPACE(tokens);
         }
         else if(tokens[2] == "CONST"){
+          this->check_CONST(tokens);
+        }
+        else if(tokens[2] == "SECTION"){
+          this->check_SECTION(tokens);
         }
       }
       catch(std::exception exc){
@@ -245,6 +288,12 @@ void translator::translate(std::vector<std::string> &uploaded_file){
 
   for (int i = 0; i < this->section_text.size(); i++){
     std::cout << this->section_text[i];
+  }
+  for (int i = 0; i < this->section_bss.size(); i++){
+    std::cout << this->section_bss[i];
+  }
+  for (int i = 0; i < this->section_data.size(); i++){
+    std::cout << this->section_data[i];
   }
 
 }
