@@ -1,10 +1,13 @@
 S4: EQU 200
 SECTION TEXT
 ROT: INPUT N1
-ADD N1 + 1, N2 + 2
-COPY N2, N4 + 2
-COPY N3, S4
+rotulo: ADD N1 + 1
+ADD N2
+COPY n1 + 1, n2 + 2
 ADD N3
+store n3
+load n1 + 5
+stop
 mul n1
 div DOIS
 SECTION DATA
