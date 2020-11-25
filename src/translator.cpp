@@ -58,11 +58,39 @@ void translator::check_SUB(std::deque<std::string> tokens){
 }
 
 void translator::check_MUL(std::deque<std::string> tokens){
-
+  if(!tokens[6].empty() || !tokens[7].empty() || !tokens[8].empty())
+    std::cout << "ERRO: instrucao " << tokens[2] << " invalida\n";
+  else{
+    if(tokens[4].empty()) {
+      this->section_text.emplace_back("imul dword["+ tokens[3] + "]\n");
+    } 
+    else {
+      if(check_operator(tokens[4]) && check_offset(tokens[5])){
+        this->section_text.emplace_back("imul dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
+      }
+      else
+        std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);
+    }
+  }
 }
 
 void translator::check_DIV(std::deque<std::string> tokens){
-
+  if(!tokens[6].empty() || !tokens[7].empty() || !tokens[8].empty())
+    std::cout << "ERRO: instrucao " << tokens[2] << " invalida\n";
+  else{
+    if(tokens[4].empty()) {
+      this->section_text.emplace_back("cdq\n");
+      this->section_text.emplace_back("idiv dword[" + tokens[3] + "]\n");
+    } 
+    else {
+      if(check_operator(tokens[4]) && check_offset(tokens[5])){
+        this->section_text.emplace_back("cdq\n");
+        this->section_text.emplace_back("idiv dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
+      }
+      else
+        std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);
+    }
+  }
 }
 
 void translator::check_JMP(std::deque<std::string> tokens){
@@ -161,17 +189,18 @@ void translator::check_STORE(std::deque<std::string> tokens){
 }
 
 void translator::check_STOP(std::deque<std::string> tokens){
-    this->section_text.emplace_back("mov eax, 1\n");
-    this->section_text.emplace_back("mov ebx, 0\n");
-    this->section_text.emplace_back("int 80h\n");
+  this->section_text.emplace_back("sys_exit: ");
+  this->section_text.emplace_back("mov eax, 1\n");
+  this->section_text.emplace_back("mov ebx, 0\n");
+  this->section_text.emplace_back("int 80h\n");
 }
 
 void translator::check_SPACE(std::deque<std::string> tokens){
-  this->section_bss.emplace_back(tokens[1] + " resb " + (tokens[5].empty() ? "1" : tokens[5]) + "\n");
+  this->section_bss.emplace_back(tokens[1] + " resd " + (tokens[5].empty() ? "1" : tokens[5]) + "\n");
 }
 
 void translator::check_CONST(std::deque<std::string> tokens){
-  this->section_data.emplace_back(tokens[1] + " db " + tokens[5] + "\n");
+  this->section_data.emplace_back(tokens[1] + " dd " + tokens[5] + "\n");
 }
 
 void translator::check_SECTION(std::deque<std::string> tokens){

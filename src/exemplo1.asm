@@ -1,7 +1,7 @@
 SECTION TEXT
-add base
-sub ALTURA
-add DOIS
+load base
+mul ALTURA
+div DOIS
 STORE RES
 STOP
 SECTION DATA
