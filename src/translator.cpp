@@ -2,6 +2,10 @@
 
 translator::translator(){
   this->instructions_reg = std::regex("^(?:([A-Za-z_]\\w*): )?([A-Za-z]+)(?: ([A-Za-z_]\\w*))?(?: ([+-]) )?(?: ?([-\\d]+))?(?:,)?(?: ([A-Za-z_]\\w*))?(?: ([+-]) )?(?: ?([-\\d]+))?$");
+  this->readChar = false;
+  this->writeChar = false;
+  this->readString = false;
+  this->writeString = false;
 }
 translator::~translator(){}
 
@@ -220,6 +224,105 @@ void translator::check_SECTION(std::deque<std::string> tokens){
   }
 }
 
+void translator::check_C_INPUT(std::deque<std::string> tokens){
+  this->section_text.emplace_back("push " + tokens[3] + "\n");
+  this->section_text.emplace_back("call LerChar\n");
+  this->section_text.emplace_back("add esp, 4\n");
+  this->readChar = true;
+}
+
+void translator::check_S_INPUT(std::deque<std::string> tokens){
+  this->section_text.emplace_back("push " + tokens[3] + "\n");
+  this->section_text.emplace_back("call LerString\n");
+  this->section_text.emplace_back("add esp, 4\n");
+  this->readChar = true;
+  this->readString = true;
+}
+
+void translator::check_C_OUTPUT(std::deque<std::string> tokens){
+  this->section_text.emplace_back("push " + tokens[3] + "\n");
+  this->section_text.emplace_back("call EscreverChar\n");
+  this->section_text.emplace_back("add esp, 4\n");
+  this->writeChar = true;
+}
+
+void translator::check_S_OUTPUT(std::deque<std::string> tokens){
+  this->section_text.emplace_back("push " + tokens[3] + "\n");
+  this->section_text.emplace_back("call EscreverString\n");
+  this->section_text.emplace_back("add esp, 4\n");
+  this->writeChar = true;
+  this->writeString = true;
+}
+
+void translator::LerChar(){
+  this->section_text.emplace_back("LerChar:\n");
+  this->section_text.emplace_back("\tenter 0, 0\n");
+  this->section_text.emplace_back("\tpusha\n");
+  this->section_text.emplace_back("\tmov eax, 3\n");
+  this->section_text.emplace_back("\tmov ebx, 0\n");
+  this->section_text.emplace_back("\tmov ecx, [EBP+8]\n");
+  this->section_text.emplace_back("\tmov edx, 1\n");
+  this->section_text.emplace_back("\tint 80h\n");
+  this->section_text.emplace_back("\tpopa\n");
+  this->section_text.emplace_back("\tleave\n");
+  this->section_text.emplace_back("\tret\n");
+}
+
+void translator::LerString(){
+  this->section_text.emplace_back("LerString: \n");
+  this->section_text.emplace_back("\tenter 0, 0\n");
+  this->section_text.emplace_back("\tpusha\n");
+  this->section_text.emplace_back("\tmov eax, 0\n");
+  this->section_text.emplace_back("leitura:\n");
+  this->section_text.emplace_back("\tmov ecx, [EBP+8]\n");
+  this->section_text.emplace_back("\tmov ebx, eax\n");
+  this->section_text.emplace_back("\tshl ebx, 2\n");
+  this->section_text.emplace_back("\tadd ecx, ebx\n");
+  this->section_text.emplace_back("\tpush ecx\n");
+  this->section_text.emplace_back("\tcall LerChar\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->section_text.emplace_back("\tinc eax\n");
+  this->section_text.emplace_back("\tcmp dword[ecx], 0xa\n");
+  this->section_text.emplace_back("\tjne leitura\n");
+  this->section_text.emplace_back("\tmov dword[ecx], 0\n");
+  this->section_text.emplace_back("\tpopa\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->section_text.emplace_back("\tleave\n");
+  this->section_text.emplace_back("\tret\n");
+}
+
+void translator::EscreverChar(){
+  this->section_text.emplace_back("EscreverChar:\n");
+  this->section_text.emplace_back("\tenter 0, 0\n");
+  this->section_text.emplace_back("\tpusha\n");
+  this->section_text.emplace_back("\tmov eax, 4\n");
+  this->section_text.emplace_back("\tmov ebx, 1\n");
+  this->section_text.emplace_back("\tmov ecx, [EBP+8]\n");
+  this->section_text.emplace_back("\tmov edx, 1\n");
+  this->section_text.emplace_back("\tint 80h\n");
+  this->section_text.emplace_back("\tpopa\n");
+  this->section_text.emplace_back("\tleave\n");
+  this->section_text.emplace_back("\tret\n");
+}
+
+void translator::EscreverString(){
+  this->section_text.emplace_back("EscreverString:\n");
+  this->section_text.emplace_back("\tenter 0, 0\n");
+  this->section_text.emplace_back("\tpush eax\n");
+  this->section_text.emplace_back("\tmov eax, [EBP+8]\n");
+  this->section_text.emplace_back("escrita:\n");
+  this->section_text.emplace_back("\tpush eax\n");
+  this->section_text.emplace_back("\tcall EscreverChar\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->section_text.emplace_back("\tadd eax, 4\n");
+  this->section_text.emplace_back("\tcmp dword[eax], 0\n");
+  this->section_text.emplace_back("\tjnz escrita\n");
+  this->section_text.emplace_back("\tpop eax\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->section_text.emplace_back("\tleave\n");
+  this->section_text.emplace_back("\tret\n");
+}
+
 void translator::translate(std::vector<std::string> &uploaded_file){
   std::smatch matches;
   for(int i=0; i<uploaded_file.size(); i++){
@@ -307,6 +410,26 @@ void translator::translate(std::vector<std::string> &uploaded_file){
         }
         else if(tokens[2] == "SECTION"){
           this->check_SECTION(tokens);
+        }
+        else if(tokens[2] == "C_INPUT"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ": ");
+          this->check_C_INPUT(tokens);
+        }
+        else if(tokens[2] == "S_INPUT"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ": ");
+          this->check_S_INPUT(tokens);
+        }
+        else if(tokens[2] == "C_OUTPUT"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ": ");
+          this->check_C_OUTPUT(tokens);
+        }
+        else if(tokens[2] == "S_OUTPUT"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ": ");
+          this->check_S_OUTPUT(tokens);
         }
       }
       catch(std::exception exc){

@@ -10,6 +10,11 @@ private:
   std::deque<std::string> section_bss;
   std::deque<std::string> section_data;
 
+  bool readChar;
+  bool writeChar;
+  bool readString;
+  bool writeString;
+
   bool check_operator(std::string operacao);
   bool check_offset(std::string offset);
   
@@ -35,7 +40,16 @@ private:
 
   void check_SECTION(std::deque<std::string> tokens);
 
-  
+  void check_C_INPUT(std::deque<std::string> tokens);
+  void check_S_INPUT(std::deque<std::string> tokens);
+  void check_C_OUTPUT(std::deque<std::string> tokens);
+  void check_S_OUTPUT(std::deque<std::string> tokens);
+
+  void LerChar();
+  void LerString();
+  void EscreverChar();
+  void EscreverString();
+
 public:
   translator();
   ~translator();
