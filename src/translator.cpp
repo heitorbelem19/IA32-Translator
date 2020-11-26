@@ -29,11 +29,11 @@ void translator::check_ADD(std::deque<std::string> tokens){
   }
   else{
     if(tokens[4].empty()){
-      this->section_text.emplace_back("add eax, dword[" + tokens[3] + "]\n");
+      this->section_text.emplace_back("\tadd eax, dword[" + tokens[3] + "]\n");
     }
     else{
       if(check_operator(tokens[4]) && check_offset(tokens[5])){
-        this->section_text.emplace_back("add eax, dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
+        this->section_text.emplace_back("\tadd eax, dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
       }
       else{
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);
@@ -48,11 +48,11 @@ void translator::check_SUB(std::deque<std::string> tokens){
   }
   else{
     if(tokens[4].empty()){
-      this->section_text.emplace_back("sub eax, dword[" + tokens[3] + "]\n");
+      this->section_text.emplace_back("\tsub eax, dword[" + tokens[3] + "]\n");
     }
     else{
       if(check_operator(tokens[4]) && check_offset(tokens[5])){
-        section_text.emplace_back("sub eax, dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
+        section_text.emplace_back("\tsub eax, dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
       }
       else{
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);
@@ -66,11 +66,11 @@ void translator::check_MUL(std::deque<std::string> tokens){
     std::cout << "ERRO: instrucao " << tokens[2] << " invalida\n";
   else{
     if(tokens[4].empty()) {
-      this->section_text.emplace_back("imul dword["+ tokens[3] + "]\n");
+      this->section_text.emplace_back("\timul dword["+ tokens[3] + "]\n");
     } 
     else {
       if(check_operator(tokens[4]) && check_offset(tokens[5])){
-        this->section_text.emplace_back("imul dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
+        this->section_text.emplace_back("\timul dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
       }
       else
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);
@@ -83,13 +83,13 @@ void translator::check_DIV(std::deque<std::string> tokens){
     std::cout << "ERRO: instrucao " << tokens[2] << " invalida\n";
   else{
     if(tokens[4].empty()) {
-      this->section_text.emplace_back("cdq\n");
-      this->section_text.emplace_back("idiv dword[" + tokens[3] + "]\n");
+      this->section_text.emplace_back("\tcdq\n");
+      this->section_text.emplace_back("\tidiv dword[" + tokens[3] + "]\n");
     } 
     else {
       if(check_operator(tokens[4]) && check_offset(tokens[5])){
-        this->section_text.emplace_back("cdq\n");
-        this->section_text.emplace_back("idiv dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
+        this->section_text.emplace_back("\tcdq\n");
+        this->section_text.emplace_back("\tidiv dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
       }
       else
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);
@@ -98,22 +98,22 @@ void translator::check_DIV(std::deque<std::string> tokens){
 }
 
 void translator::check_JMP(std::deque<std::string> tokens){
-  this->section_text.emplace_back("jmp " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tjmp " + tokens[3] + "\n");
 }
 
 void translator::check_JMPZ(std::deque<std::string> tokens){
-  this->section_text.emplace_back("cmp eax, 0\n");
-  this->section_text.emplace_back("je " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcmp eax, 0\n");
+  this->section_text.emplace_back("\tje " + tokens[3] + "\n");
 }
 
 void translator::check_JMPP(std::deque<std::string> tokens){
-  this->section_text.emplace_back("cmp eax, 0\n");
-  this->section_text.emplace_back("jg " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcmp eax, 0\n");
+  this->section_text.emplace_back("\tjg " + tokens[3] + "\n");
 }
 
 void translator::check_JMPN(std::deque<std::string> tokens){
-  this->section_text.emplace_back("cmp eax, 0\n");
-  this->section_text.emplace_back("jl " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcmp eax, 0\n");
+  this->section_text.emplace_back("\tjl " + tokens[3] + "\n");
 }
 
 void translator::check_COPY(std::deque<std::string> tokens){
@@ -145,10 +145,10 @@ void translator::check_COPY(std::deque<std::string> tokens){
 
   // verificar se houve erro na instrução a ser traduzida
   if(!error){
-    this->section_text.emplace_back("push eax\n");
-    this->section_text.emplace_back("mov eax, dword[" + src + "]\n");
-    this->section_text.emplace_back("mov dword[" + dst + "], eax\n");
-    this->section_text.emplace_back("pop eax\n");
+    this->section_text.emplace_back("\tpush eax\n");
+    this->section_text.emplace_back("\tmov eax, dword[" + src + "]\n");
+    this->section_text.emplace_back("\tmov dword[" + dst + "], eax\n");
+    this->section_text.emplace_back("\tpop eax\n");
   }
   else 
     std::cout << "ERRO: instrucao " << tokens[2] << " invalida\n";
@@ -160,11 +160,11 @@ void translator::check_LOAD(std::deque<std::string> tokens){
   }
   else {
     if(tokens[4].empty()){
-      this->section_text.emplace_back("mov eax, dword[" + tokens[3] + "]\n");
+      this->section_text.emplace_back("\tmov eax, dword[" + tokens[3] + "]\n");
     }
     else {
       if(check_operator(tokens[4]) && check_offset(tokens[5])){
-        this->section_text.emplace_back("mov eax, dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
+        this->section_text.emplace_back("\tmov eax, dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
       }
       else {
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]); 
@@ -179,11 +179,11 @@ void translator::check_STORE(std::deque<std::string> tokens){
   }
   else {
     if(tokens[4].empty()) {
-      this->section_text.emplace_back("mov dword[" + tokens[3] + "], eax\n");
+      this->section_text.emplace_back("\tmov dword[" + tokens[3] + "], eax\n");
     } 
     else {
       if (check_operator(tokens[4]) && check_offset(tokens[5])) {
-        this->section_text.emplace_back("mov dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "], eax\n");
+        this->section_text.emplace_back("\tmov dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "], eax\n");
       }
       else{
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]); 
@@ -193,10 +193,10 @@ void translator::check_STORE(std::deque<std::string> tokens){
 }
 
 void translator::check_STOP(std::deque<std::string> tokens){
-  this->section_text.emplace_back("sys_exit: ");
-  this->section_text.emplace_back("mov eax, 1\n");
-  this->section_text.emplace_back("mov ebx, 0\n");
-  this->section_text.emplace_back("int 80h\n");
+  this->section_text.emplace_back("sys_exit:\n");
+  this->section_text.emplace_back("\tmov eax, 1\n");
+  this->section_text.emplace_back("\tmov ebx, 0\n");
+  this->section_text.emplace_back("\tint 80h\n");
 }
 
 void translator::check_SPACE(std::deque<std::string> tokens){
@@ -225,31 +225,31 @@ void translator::check_SECTION(std::deque<std::string> tokens){
 }
 
 void translator::check_C_INPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("push " + tokens[3] + "\n");
-  this->section_text.emplace_back("call LerChar\n");
-  this->section_text.emplace_back("add esp, 4\n");
+  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcall LerChar\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
   this->readChar = true;
 }
 
 void translator::check_S_INPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("push " + tokens[3] + "\n");
-  this->section_text.emplace_back("call LerString\n");
-  this->section_text.emplace_back("add esp, 4\n");
+  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcall LerString\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
   this->readChar = true;
   this->readString = true;
 }
 
 void translator::check_C_OUTPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("push " + tokens[3] + "\n");
-  this->section_text.emplace_back("call EscreverChar\n");
-  this->section_text.emplace_back("add esp, 4\n");
+  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcall EscreverChar\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
   this->writeChar = true;
 }
 
 void translator::check_S_OUTPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("push " + tokens[3] + "\n");
-  this->section_text.emplace_back("call EscreverString\n");
-  this->section_text.emplace_back("add esp, 4\n");
+  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcall EscreverString\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
   this->writeChar = true;
   this->writeString = true;
 }
@@ -344,62 +344,62 @@ void translator::translate(std::vector<std::string> &uploaded_file){
       try{
         if(tokens[2] == "ADD"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_ADD(tokens);
         }
         else if(tokens[2] == "SUB"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_SUB(tokens);
         }
         else if(tokens[2] == "MUL"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_MUL(tokens);
         }
         else if(tokens[2] == "DIV"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_DIV(tokens);
         }
         else if(tokens[2] == "JMP"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_JMP(tokens);
         }
         else if(tokens[2] == "JMPZ"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_JMPZ(tokens);
         }
         else if(tokens[2] == "JMPP"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_JMPP(tokens);
         }
         else if(tokens[2] == "JMPN"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_JMPN(tokens);
         }
         else if(tokens[2] == "COPY"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_COPY(tokens);
         }
         else if(tokens[2] == "LOAD"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_LOAD(tokens);
         }
         else if(tokens[2] == "STORE"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_STORE(tokens);
         }
         else if(tokens[2] == "STOP"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_STOP(tokens);
         }
         else if(tokens[2] == "SPACE"){
@@ -413,22 +413,22 @@ void translator::translate(std::vector<std::string> &uploaded_file){
         }
         else if(tokens[2] == "C_INPUT"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_C_INPUT(tokens);
         }
         else if(tokens[2] == "S_INPUT"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_S_INPUT(tokens);
         }
         else if(tokens[2] == "C_OUTPUT"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_C_OUTPUT(tokens);
         }
         else if(tokens[2] == "S_OUTPUT"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ": ");
+            this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_S_OUTPUT(tokens);
         }
       }
@@ -441,9 +441,11 @@ void translator::translate(std::vector<std::string> &uploaded_file){
   for (int i = 0; i < this->section_text.size(); i++){
     std::cout << this->section_text[i];
   }
+  std::cout << std::endl;
   for (int i = 0; i < this->section_bss.size(); i++){
     std::cout << this->section_bss[i];
   }
+  std::cout << std::endl;
   for (int i = 0; i < this->section_data.size(); i++){
     std::cout << this->section_data[i];
   }
