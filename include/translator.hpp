@@ -53,7 +53,8 @@ private:
 public:
   translator();
   ~translator();
-  void translate(std::vector<std::string> &uploaded_file);
+  void translate(std::vector<std::string> &uploaded_file, std::string file_name);
+  void write_translation_result(std::string file_name);
 };
 
 

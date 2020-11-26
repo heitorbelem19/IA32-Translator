@@ -26,7 +26,7 @@ int main(int argc, char** argv){
     }
     pre_process_file.close();
     translator tradutor;
-    tradutor.translate(uploaded_file);
+    tradutor.translate(uploaded_file, output_file_name);
   }
   else{
     std::cout << "Diretiva invalida\n";

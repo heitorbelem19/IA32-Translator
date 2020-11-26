@@ -323,7 +323,7 @@ void translator::EscreverString(){
   this->section_text.emplace_back("\tret\n");
 }
 
-void translator::translate(std::vector<std::string> &uploaded_file){
+void translator::translate(std::vector<std::string> &uploaded_file, std::string file_name){
   std::smatch matches;
   for(int i=0; i<uploaded_file.size(); i++){
     if(std::regex_search(uploaded_file[i], matches, this->instructions_reg)){
@@ -438,16 +438,26 @@ void translator::translate(std::vector<std::string> &uploaded_file){
     }
   }
 
-  for (int i = 0; i < this->section_text.size(); i++){
-    std::cout << this->section_text[i];
-  }
-  std::cout << std::endl;
-  for (int i = 0; i < this->section_bss.size(); i++){
-    std::cout << this->section_bss[i];
-  }
-  std::cout << std::endl;
-  for (int i = 0; i < this->section_data.size(); i++){
-    std::cout << this->section_data[i];
-  }
+  this->write_translation_result(file_name);
 
+}
+
+void translator::write_translation_result(std::string file_name){
+  std::ofstream final_file;
+  std::regex remove_extension_reg("(.asm)");
+  std::string file_out = std::regex_replace(file_name, remove_extension_reg, ".s");
+  final_file.open(file_out);
+
+  for (int i = 0; i < this->section_text.size(); i++){
+    final_file << this->section_text[i];
+  }
+  final_file << std::endl;
+  for (int i = 0; i < this->section_data.size(); i++){
+    final_file << this->section_data[i];
+  }
+  final_file << std::endl;
+  for (int i = 0; i < this->section_bss.size(); i++){
+    final_file << this->section_bss[i];
+  }
+  final_file.close();
 }
