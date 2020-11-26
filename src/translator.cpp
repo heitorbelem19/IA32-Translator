@@ -1,7 +1,7 @@
 #include "translator.hpp"
 
 translator::translator(){
-  this->instructions_reg = std::regex("^(?:([A-Za-z_]\\w*): )?([A-Za-z]+)(?: ([A-Za-z_]\\w*))?(?: ([+-]) )?(?: ?([-\\d]+))?(?:,)?(?: ([A-Za-z_]\\w*))?(?: ([+-]) )?(?: ?([-\\d]+))?$");
+  this->instructions_reg = std::regex("^(?:([A-Za-z_]\\w*): )?([A-Za-z_]+)(?: ([A-Za-z_]\\w*))?(?: ([+-]) )?(?: ?([-\\d]+))?(?:,)?(?: ([A-Za-z_]\\w*))?(?: ([+-]) )?(?: ?([-\\d]+))?$");
   this->readChar = false;
   this->writeChar = false;
   this->readString = false;
@@ -119,10 +119,6 @@ void translator::check_JMPN(std::deque<std::string> tokens){
 void translator::check_COPY(std::deque<std::string> tokens){
   std::string src, dst;
   bool error = false;
-
-  // std::cout << "1: " << tokens[1] << "\t" << "2: " << tokens[2] << "\t" << "3: " << tokens[3] << "\t" << "4: " << tokens[4] << "\n";
-  // std::cout << "5: " << tokens[5] << "\t" << "6: " << tokens[6] << "\t" << "7: " << tokens[7] << "\t" << "8: " << tokens[8] << "\n";
-
   // Verificar se o operando SRC é um elemento de array ou não
   if(tokens[4].empty())
     src = tokens[3];
@@ -413,7 +409,7 @@ void translator::translate(std::vector<std::string> &uploaded_file, std::string 
         }
         else if(tokens[2] == "C_INPUT"){
           if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ":\n");
+            this->section_text.emplace_back(tokens[1] + ":\n"); 
           this->check_C_INPUT(tokens);
         }
         else if(tokens[2] == "S_INPUT"){
@@ -446,6 +442,12 @@ void translator::write_translation_result(std::string file_name){
   std::ofstream final_file;
   std::regex remove_extension_reg("(.asm)");
   std::string file_out = std::regex_replace(file_name, remove_extension_reg, ".s");
+  
+  if(this->readChar == true) this->LerChar();
+  if(this->readString == true) this->LerString();
+  if(this->writeChar == true) this->EscreverChar();
+  if(this->writeString == true) this->EscreverString();
+
   final_file.open(file_out);
 
   for (int i = 0; i < this->section_text.size(); i++){
