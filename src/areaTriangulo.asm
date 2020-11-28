@@ -1,5 +1,5 @@
 SECTION TEXT
-C_INPUT num
+S_INPUT num
 load base
 mul ALTURA
 div DOIS

@@ -6,6 +6,8 @@ translator::translator(){
   this->writeChar = false;
   this->readString = false;
   this->writeString = false;
+  this->readInteger = false;
+  this->writeInteger = false;
 }
 translator::~translator(){}
 
@@ -250,6 +252,22 @@ void translator::check_S_OUTPUT(std::deque<std::string> tokens){
   this->writeString = true;
 }
 
+void translator::check_INPUT(std::deque<std::string> tokens){
+  this->section_text.emplace_back("push " + tokens[3] + "\n");
+  this->section_text.emplace_back("call LerInteiro\n");
+  this->section_text.emplace_back("add esp, 4\n");
+  this->readInteger = true;
+  this->readChar = true;
+}
+
+void translator::check_OUTPUT(std::deque<std::string> tokens){
+  this->section_text.emplace_back("push dword[" + tokens[3] + "]\n");
+  this->section_text.emplace_back("call EscreverInteiro\n");
+  this->section_text.emplace_back("add esp, 4\n");
+  this->writeInteger = true;
+  this->writeString = true;
+}
+
 void translator::LerChar(){
   this->section_text.emplace_back("LerChar:\n");
   this->section_text.emplace_back("\tenter 0, 0\n");
@@ -269,7 +287,7 @@ void translator::LerString(){
   this->section_text.emplace_back("\tenter 0, 0\n");
   this->section_text.emplace_back("\tpusha\n");
   this->section_text.emplace_back("\tmov eax, 0\n");
-  this->section_text.emplace_back("leitura:\n");
+  this->section_text.emplace_back("leitura_string:\n");
   this->section_text.emplace_back("\tmov ecx, [EBP+8]\n");
   this->section_text.emplace_back("\tmov ebx, eax\n");
   this->section_text.emplace_back("\tshl ebx, 2\n");
@@ -279,7 +297,7 @@ void translator::LerString(){
   this->section_text.emplace_back("\tadd esp, 4\n");
   this->section_text.emplace_back("\tinc eax\n");
   this->section_text.emplace_back("\tcmp dword[ecx], 0xa\n");
-  this->section_text.emplace_back("\tjne leitura\n");
+  this->section_text.emplace_back("\tjne leitura_string\n");
   this->section_text.emplace_back("\tmov dword[ecx], 0\n");
   this->section_text.emplace_back("\tpopa\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
@@ -306,17 +324,76 @@ void translator::EscreverString(){
   this->section_text.emplace_back("\tenter 0, 0\n");
   this->section_text.emplace_back("\tpush eax\n");
   this->section_text.emplace_back("\tmov eax, [EBP+8]\n");
-  this->section_text.emplace_back("escrita:\n");
+  this->section_text.emplace_back("escrita_string:\n");
   this->section_text.emplace_back("\tpush eax\n");
   this->section_text.emplace_back("\tcall EscreverChar\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
   this->section_text.emplace_back("\tadd eax, 4\n");
   this->section_text.emplace_back("\tcmp dword[eax], 0\n");
-  this->section_text.emplace_back("\tjnz escrita\n");
+  this->section_text.emplace_back("\tjnz escrita_string\n");
   this->section_text.emplace_back("\tpop eax\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
   this->section_text.emplace_back("\tleave\n");
   this->section_text.emplace_back("\tret\n");
+}
+
+void translator::LerInteiro(){
+  this->section_text.emplace_back("LerInteiro:\n");
+  this->section_text.emplace_back("\tenter 5, 0\n");
+  this->section_text.emplace_back("\tpusha\n");
+  this->section_text.emplace_back("\tmov ebx, ebp\n");
+  this->section_text.emplace_back("\tsub ebx, 1\n");
+  this->section_text.emplace_back("\tmov dword[EBP-5], 0\n");
+  this->section_text.emplace_back("leitura_inteiro:\n");
+  this->section_text.emplace_back("\tpush ebx\n");
+  this->section_text.emplace_back("\tcall LerChar\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->section_text.emplace_back("\tcmp byte[EBP-1], 0xa\n");
+  this->section_text.emplace_back("\tje fim_inteiro\n");
+  this->section_text.emplace_back("\tmov eax, [EBP-5]\n");
+  this->section_text.emplace_back("\tmov edx, eax\n");
+  this->section_text.emplace_back("\tshl eax, 2\n");
+  this->section_text.emplace_back("\tadd eax, eax\n");
+  this->section_text.emplace_back("\tadd eax, edx\n");
+  this->section_text.emplace_back("\tadd eax, edx\n");
+  this->section_text.emplace_back("\tmov [EBP-5], eax\n");
+  this->section_text.emplace_back("\tmov eax, [EBP-1]\n");
+  this->section_text.emplace_back("\tsub eax, 0x30\n");
+  this->section_text.emplace_back("\tadd [EBP-5], eax\n");
+  this->section_text.emplace_back("\tjmp leitura_inteiro\n");
+  this->section_text.emplace_back("fim_inteiro:\n");
+  this->section_text.emplace_back("\tmov eax, [EBP-5]\n");
+  this->section_text.emplace_back("\tmov ebx, [EBP+8]\n");
+	this->section_text.emplace_back("\tmov [ebx], eax\n");
+  this->section_text.emplace_back("\tpopa\n");
+  this->section_text.emplace_back("\tleave\n");
+  this->section_text.emplace_back("\tret\n");
+}
+
+void translator::EscreverInteiro(){
+  this->section_text.emplace_back("EscreverInteiro:\n");
+  this->section_text.emplace_back("\tenter 0, 0\n");
+  this->section_text.emplace_back("\tpusha\n");
+  this->section_text.emplace_back("\tmov ebx, esp\n");
+  this->section_text.emplace_back("\tmov eax, [EBP+8]\n");
+  this->section_text.emplace_back("\tmov edx, 0\n");
+  this->section_text.emplace_back("\tpush edx\n");
+  this->section_text.emplace_back("\tmov ecx, 10\n");
+  this->section_text.emplace_back("escrita_inteiro:\n");
+  this->section_text.emplace_back("\tmov edx, 0\n");
+  this->section_text.emplace_back("\tdiv ecx\n");
+  this->section_text.emplace_back("\tadd edx, 0x30\n");
+  this->section_text.emplace_back("\tpush edx\n");
+  this->section_text.emplace_back("\tcmp eax, 0\n");
+  this->section_text.emplace_back("\tjnz escrita_inteiro\n");
+  this->section_text.emplace_back("\tpush esp\n");
+  this->section_text.emplace_back("\tcall EscreverString\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->section_text.emplace_back("\tmov esp, ebx\n");
+  this->section_text.emplace_back("\tpopa\n");
+  this->section_text.emplace_back("\tleave\n");
+  this->section_text.emplace_back("\tret\n");
+
 }
 
 void translator::translate(std::vector<std::string> &uploaded_file, std::string file_name){
@@ -427,9 +504,19 @@ void translator::translate(std::vector<std::string> &uploaded_file, std::string 
             this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_S_OUTPUT(tokens);
         }
+        else if(tokens[2] == "INPUT"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ":\n");
+          this->check_INPUT(tokens);
+        }
+        else if(tokens[2] == "OUTPUT"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ":\n");
+          this->check_OUTPUT(tokens);
+        }
       }
       catch(std::exception exc){
-        printf("Exception '%s' reported at line %d\n", exc.what(), i+1);
+        printf("Exceção gerada '%s'\tLinha %d\n", exc.what(), i+1);
       }
     }
   }
@@ -443,10 +530,12 @@ void translator::write_translation_result(std::string file_name){
   std::regex remove_extension_reg("(.asm)");
   std::string file_out = std::regex_replace(file_name, remove_extension_reg, ".s");
   
-  if(this->readChar == true) this->LerChar();
-  if(this->readString == true) this->LerString();
-  if(this->writeChar == true) this->EscreverChar();
-  if(this->writeString == true) this->EscreverString();
+  if(this->readChar) this->LerChar();
+  if(this->readString) this->LerString();
+  if(this->writeChar) this->EscreverChar();
+  if(this->writeString) this->EscreverString();
+  if(this->readInteger) this->LerInteiro();
+  if(this->writeInteger) this->EscreverInteiro();
 
   final_file.open(file_out);
 
