@@ -253,17 +253,17 @@ void translator::check_S_OUTPUT(std::deque<std::string> tokens){
 }
 
 void translator::check_INPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("push " + tokens[3] + "\n");
-  this->section_text.emplace_back("call LerInteiro\n");
-  this->section_text.emplace_back("add esp, 4\n");
+  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcall LerInteiro\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
   this->readInteger = true;
   this->readChar = true;
 }
 
 void translator::check_OUTPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("push dword[" + tokens[3] + "]\n");
-  this->section_text.emplace_back("call EscreverInteiro\n");
-  this->section_text.emplace_back("add esp, 4\n");
+  this->section_text.emplace_back("\tpush dword[" + tokens[3] + "]\n");
+  this->section_text.emplace_back("\tcall EscreverInteiro\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
   this->writeInteger = true;
   this->writeString = true;
 }

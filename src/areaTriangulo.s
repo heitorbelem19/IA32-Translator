@@ -2,7 +2,7 @@ section .text
 global _start
 _start:
 	push NUM
-	call LerString
+	call LerInteiro
 	add esp, 4
 	mov eax, dword[BASE]
 	imul dword[ALTURA]
@@ -24,24 +24,34 @@ LerChar:
 	popa
 	leave
 	ret
-LerString: 
-	enter 0, 0
+LerInteiro:
+	enter 5, 0
 	pusha
-	mov eax, 0
-leitura:
-	mov ecx, [EBP+8]
-	mov ebx, eax
-	shl ebx, 2
-	add ecx, ebx
-	push ecx
+	mov ebx, ebp
+	sub ebx, 1
+	mov dword[EBP-5], 0
+leitura_inteiro:
+	push ebx
 	call LerChar
 	add esp, 4
-	inc eax
-	cmp dword[ecx], 0xa
-	jne leitura
-	mov dword[ecx], 0
+	cmp byte[EBP-1], 0xa
+	je fim_inteiro
+	mov eax, [EBP-5]
+	mov edx, eax
+	shl eax, 2
+	add eax, eax
+	add eax, edx
+	add eax, edx
+	mov [EBP-5], eax
+	mov eax, [EBP-1]
+	sub eax, 0x30
+	add [EBP-5], eax
+	jmp leitura_inteiro
+fim_inteiro:
+	mov eax, [EBP-5]
+	mov ebx, [EBP+8]
+	mov [ebx], eax
 	popa
-	add esp, 4
 	leave
 	ret
 
