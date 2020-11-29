@@ -16,6 +16,7 @@ private:
   bool writeString;
   bool readInteger;
   bool writeInteger;
+  bool writeOverflow;
 
   bool check_operator(std::string operacao);
   bool check_offset(std::string offset);
@@ -55,6 +56,7 @@ private:
   void EscreverString();
   void LerInteiro();
   void EscreverInteiro();
+  void ResultOverflow();
 
 public:
   translator();

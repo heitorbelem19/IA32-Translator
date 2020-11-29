@@ -6,6 +6,7 @@ _start:
 	add esp, 4
 	mov eax, dword[BASE]
 	imul dword[ALTURA]
+	jbe ResultOverflow
 	cdq
 	idiv dword[DOIS]
 	mov dword[RES], eax
@@ -54,8 +55,14 @@ fim_inteiro:
 	popa
 	leave
 	ret
+ResultOverflow:
+	push OVERFLOW
+	call EscreverString
+	add esp, 4
+	jmp sys_exit
 
 section .data
+OVERFLOW dd 'o', 'v', 'e', 'r', 'f', 'l', 'o', 'w'
 BASE dd 3
 ALTURA dd 4
 DOIS dd 2

@@ -8,7 +8,9 @@ translator::translator(){
   this->writeString = false;
   this->readInteger = false;
   this->writeInteger = false;
+  this->writeOverflow = false;
 }
+
 translator::~translator(){}
 
 bool translator::check_operator(std::string operacao){
@@ -69,10 +71,14 @@ void translator::check_MUL(std::deque<std::string> tokens){
   else{
     if(tokens[4].empty()) {
       this->section_text.emplace_back("\timul dword["+ tokens[3] + "]\n");
+      this->section_text.emplace_back("\tjbe ResultOverflow\n");
+      this->writeOverflow = true;
     } 
     else {
       if(check_operator(tokens[4]) && check_offset(tokens[5])){
         this->section_text.emplace_back("\timul dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
+        this->section_text.emplace_back("\tjbe ResultOverflow\n");
+        this->writeOverflow = true;
       }
       else
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);
@@ -213,6 +219,7 @@ void translator::check_SECTION(std::deque<std::string> tokens){
   }
   else if(tokens[3] == "DATA"){
     this->section_data.emplace_back("section .data\n");
+    this->section_data.emplace_back("OVERFLOW dd 'o', 'v', 'e', 'r', 'f', 'l', 'o', 'w'\n");
   }
   else if(tokens[3] == "BSS"){
     this->section_bss.emplace_back("section .bss\n");
@@ -256,16 +263,17 @@ void translator::check_INPUT(std::deque<std::string> tokens){
   this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
   this->section_text.emplace_back("\tcall LerInteiro\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
-  this->readInteger = true;
   this->readChar = true;
+  this->readInteger = true;
 }
 
 void translator::check_OUTPUT(std::deque<std::string> tokens){
   this->section_text.emplace_back("\tpush dword[" + tokens[3] + "]\n");
   this->section_text.emplace_back("\tcall EscreverInteiro\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
-  this->writeInteger = true;
+  this->writeChar = true;
   this->writeString = true;
+  this->writeInteger = true;
 }
 
 void translator::LerChar(){
@@ -394,6 +402,14 @@ void translator::EscreverInteiro(){
   this->section_text.emplace_back("\tleave\n");
   this->section_text.emplace_back("\tret\n");
 
+}
+
+void translator::ResultOverflow(){
+  this->section_text.emplace_back("ResultOverflow:\n");
+  this->section_text.emplace_back("\tpush OVERFLOW\n");
+  this->section_text.emplace_back("\tcall EscreverString\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->section_text.emplace_back("\tjmp sys_exit\n");  
 }
 
 void translator::translate(std::vector<std::string> &uploaded_file, std::string file_name){
@@ -536,6 +552,7 @@ void translator::write_translation_result(std::string file_name){
   if(this->writeString) this->EscreverString();
   if(this->readInteger) this->LerInteiro();
   if(this->writeInteger) this->EscreverInteiro();
+  if(this->writeOverflow) this->ResultOverflow();
 
   final_file.open(file_out);
 
