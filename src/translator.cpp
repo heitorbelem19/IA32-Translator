@@ -71,16 +71,14 @@ void translator::check_MUL(std::deque<std::string> tokens){
   else{
     if(tokens[4].empty()) {
       this->section_text.emplace_back("\timul dword["+ tokens[3] + "]\n");
-      //this->section_text.emplace_back("\tjbe ResultOverflow\n");
-      this->writeOverflow = true;
+      // this->section_text.emplace_back("\tjbe ResultOverflow\n");
+      // this->writeOverflow = true;
     } 
     else {
       if(check_operator(tokens[4]) && check_offset(tokens[5])){
         this->section_text.emplace_back("\timul dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
-        this->section_text.emplace_back("\tjbe ResultOverflow\n");
+        // this->section_text.emplace_back("\tjbe ResultOverflow\n");
         // this->writeOverflow = true;
-        // this->writeString = true;
-        // this->writeChar = true;
       }
       else
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);
@@ -199,7 +197,6 @@ void translator::check_STORE(std::deque<std::string> tokens){
 }
 
 void translator::check_STOP(std::deque<std::string> tokens){
-  this->section_text.emplace_back("sys_exit:\n");
   this->section_text.emplace_back("\tmov eax, 1\n");
   this->section_text.emplace_back("\tmov ebx, 0\n");
   this->section_text.emplace_back("\tint 80h\n");
@@ -213,29 +210,18 @@ void translator::check_CONST(std::deque<std::string> tokens){
   this->section_data.emplace_back(tokens[1] + " dd " + tokens[5] + "\n");
 }
 
-void translator::check_SECTION(std::deque<std::string> tokens){
-  if(tokens[3] == "TEXT"){
-    this->section_text.emplace_back("section .text\n");
-    this->section_text.emplace_back("global _start\n");
-    this->section_text.emplace_back("_start:\n"); 
-  }
-  else if(tokens[3] == "DATA"){
-    this->section_data.emplace_back("section .data\n");
-    this->section_data.emplace_back("OVERFLOW dd 'o', 'v', 'e', 'r', 'f', 'l', 'o', 'w'\n");
-  }
-  else if(tokens[3] == "BSS"){
-    this->section_bss.emplace_back("section .bss\n");
-  }
-  else {
-    std::cout << "ERRO: Secao Invalida\n";
-  }
-}
-
 void translator::check_C_INPUT(std::deque<std::string> tokens){
   this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
   this->section_text.emplace_back("\tcall LerChar\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
   this->readChar = true;
+}
+
+void translator::check_C_OUTPUT(std::deque<std::string> tokens){
+  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcall EscreverChar\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->writeChar = true;
 }
 
 // void translator::check_S_INPUT(std::deque<std::string> tokens){
@@ -245,13 +231,6 @@ void translator::check_C_INPUT(std::deque<std::string> tokens){
 //   this->readChar = true;
 //   this->readString = true;
 // }
-
-void translator::check_C_OUTPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
-  this->section_text.emplace_back("\tcall EscreverChar\n");
-  this->section_text.emplace_back("\tadd esp, 4\n");
-  this->writeChar = true;
-}
 
 // void translator::check_S_OUTPUT(std::deque<std::string> tokens){
 //   this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
@@ -411,7 +390,9 @@ void translator::ResultOverflow(){
   this->section_text.emplace_back("\tpush OVERFLOW\n");
   this->section_text.emplace_back("\tcall EscreverString\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
-  this->section_text.emplace_back("\tjmp sys_exit\n");  
+  this->section_text.emplace_back("\tmov eax, 1\n");
+  this->section_text.emplace_back("\tmov ebx, 0\n");
+  this->section_text.emplace_back("\tint 80h\n"); 
 }
 
 void translator::translate(std::vector<std::string> &uploaded_file, std::string file_name){
@@ -499,46 +480,42 @@ void translator::translate(std::vector<std::string> &uploaded_file, std::string 
         else if(tokens[2] == "CONST"){
           this->check_CONST(tokens);
         }
-        else if(tokens[2] == "SECTION"){
-          this->check_SECTION(tokens);
-        }
         else if(tokens[2] == "C_INPUT"){
           if(!tokens[1].empty())
             this->section_text.emplace_back(tokens[1] + ":\n"); 
           this->check_C_INPUT(tokens);
-        }
-        else if(tokens[2] == "S_INPUT"){
-          if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ":\n");
-          this->check_S_INPUT(tokens);
         }
         else if(tokens[2] == "C_OUTPUT"){
           if(!tokens[1].empty())
             this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_C_OUTPUT(tokens);
         }
-        else if(tokens[2] == "S_OUTPUT"){
-          if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ":\n");
-          this->check_S_OUTPUT(tokens);
-        }
+        // else if(tokens[2] == "S_INPUT"){
+        //   if(!tokens[1].empty())
+        //     this->section_text.emplace_back(tokens[1] + ":\n");
+        //   this->check_S_INPUT(tokens);
+        // }
+        // else if(tokens[2] == "S_OUTPUT"){
+        //   if(!tokens[1].empty())
+        //     this->section_text.emplace_back(tokens[1] + ":\n");
+        //   this->check_S_OUTPUT(tokens);
+        // }
         else if(tokens[2] == "INPUT"){
           if(!tokens[1].empty())
             this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_INPUT(tokens);
         }
-        else if(tokens[2] == "OUTPUT"){
-          if(!tokens[1].empty())
-            this->section_text.emplace_back(tokens[1] + ":\n");
-          this->check_OUTPUT(tokens);
-        }
+        // else if(tokens[2] == "OUTPUT"){
+        //   if(!tokens[1].empty())
+        //     this->section_text.emplace_back(tokens[1] + ":\n");
+        //   this->check_OUTPUT(tokens);
+        // }
       }
       catch(std::exception exc){
         printf("Exceção gerada '%s'\tLinha %d\n", exc.what(), i+1);
       }
     }
   }
-
   this->write_translation_result(file_name);
 
 }
@@ -558,14 +535,23 @@ void translator::write_translation_result(std::string file_name){
 
   final_file.open(file_out);
 
+  final_file << "section .text\n";
+  final_file << "global _start\n";
+  final_file << "_start:\n"; 
+
   for (int i = 0; i < this->section_text.size(); i++){
     final_file << this->section_text[i];
   }
   final_file << std::endl;
+
+  final_file << "section .data\n";
+  final_file << "OVERFLOW dd 'o', 'v', 'e', 'r', 'f', 'l', 'o', 'w'\n";
   for (int i = 0; i < this->section_data.size(); i++){
     final_file << this->section_data[i];
   }
   final_file << std::endl;
+
+  final_file << "section .bss\n";
   for (int i = 0; i < this->section_bss.size(); i++){
     final_file << this->section_bss[i];
   }

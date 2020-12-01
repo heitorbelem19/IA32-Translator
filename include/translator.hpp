@@ -41,14 +41,12 @@ private:
   void check_SPACE(std::deque<std::string> tokens);
   void check_CONST(std::deque<std::string> tokens);
 
-  void check_SECTION(std::deque<std::string> tokens);
-
   void check_C_INPUT(std::deque<std::string> tokens);
-  void check_S_INPUT(std::deque<std::string> tokens);
   void check_C_OUTPUT(std::deque<std::string> tokens);
-  void check_S_OUTPUT(std::deque<std::string> tokens);
+  // void check_S_INPUT(std::deque<std::string> tokens);
+  // void check_S_OUTPUT(std::deque<std::string> tokens);
   void check_INPUT(std::deque<std::string> tokens);
-  void check_OUTPUT(std::deque<std::string> tokens);
+  // void check_OUTPUT(std::deque<std::string> tokens);
 
   void LerChar();
   void LerString();
@@ -57,12 +55,13 @@ private:
   void LerInteiro();
   void EscreverInteiro();
   void ResultOverflow();
+  
+  void write_translation_result(std::string file_name);
 
 public:
   translator();
   ~translator();
   void translate(std::vector<std::string> &uploaded_file, std::string file_name);
-  void write_translation_result(std::string file_name);
 };
 
 

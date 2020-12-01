@@ -1,9 +1,13 @@
-SECTION TEXT    ;linha dos dados
+T: EQU 1
+SECTION TEXT ;linha dos dados
         LOAD        B
         MuL        H
+        IF T
+        JMP L1
         DIV        DOIS
         STORE        R
-        STOP
+L1: STOP
+
 SECTION DATA
     B:    const 10
     H:    const 4
