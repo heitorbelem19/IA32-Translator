@@ -1,15 +1,11 @@
-triangulo: equ 1
 SECTION TEXT    ;linha dos dados
-
         LOAD        B
         MuL        H
-        IF TRIANGULO
         DIV        DOIS
         STORE        R
-        OUTPUT    R
         STOP
 SECTION DATA
-    B:    SPACE
-    H:    SPACE
-    R:    SPACE
+    B:    const 10
+    H:    const 4
+    R:    SPACE 5 
     DOIS:    CONST    2

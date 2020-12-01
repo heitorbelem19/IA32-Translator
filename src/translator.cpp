@@ -71,16 +71,16 @@ void translator::check_MUL(std::deque<std::string> tokens){
   else{
     if(tokens[4].empty()) {
       this->section_text.emplace_back("\timul dword["+ tokens[3] + "]\n");
-      this->section_text.emplace_back("\tjbe ResultOverflow\n");
+      //this->section_text.emplace_back("\tjbe ResultOverflow\n");
       this->writeOverflow = true;
     } 
     else {
       if(check_operator(tokens[4]) && check_offset(tokens[5])){
         this->section_text.emplace_back("\timul dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
         this->section_text.emplace_back("\tjbe ResultOverflow\n");
-        this->writeOverflow = true;
-        this->writeString = true;
-        this->writeChar = true;
+        // this->writeOverflow = true;
+        // this->writeString = true;
+        // this->writeChar = true;
       }
       else
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);
@@ -238,13 +238,13 @@ void translator::check_C_INPUT(std::deque<std::string> tokens){
   this->readChar = true;
 }
 
-void translator::check_S_INPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
-  this->section_text.emplace_back("\tcall LerString\n");
-  this->section_text.emplace_back("\tadd esp, 4\n");
-  this->readChar = true;
-  this->readString = true;
-}
+// void translator::check_S_INPUT(std::deque<std::string> tokens){
+//   this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+//   this->section_text.emplace_back("\tcall LerString\n");
+//   this->section_text.emplace_back("\tadd esp, 4\n");
+//   this->readChar = true;
+//   this->readString = true;
+// }
 
 void translator::check_C_OUTPUT(std::deque<std::string> tokens){
   this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
@@ -253,13 +253,13 @@ void translator::check_C_OUTPUT(std::deque<std::string> tokens){
   this->writeChar = true;
 }
 
-void translator::check_S_OUTPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
-  this->section_text.emplace_back("\tcall EscreverString\n");
-  this->section_text.emplace_back("\tadd esp, 4\n");
-  this->writeChar = true;
-  this->writeString = true;
-}
+// void translator::check_S_OUTPUT(std::deque<std::string> tokens){
+//   this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+//   this->section_text.emplace_back("\tcall EscreverString\n");
+//   this->section_text.emplace_back("\tadd esp, 4\n");
+//   this->writeChar = true;
+//   this->writeString = true;
+// }
 
 void translator::check_INPUT(std::deque<std::string> tokens){
   this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
@@ -269,14 +269,14 @@ void translator::check_INPUT(std::deque<std::string> tokens){
   this->readInteger = true;
 }
 
-void translator::check_OUTPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("\tpush dword[" + tokens[3] + "]\n");
-  this->section_text.emplace_back("\tcall EscreverInteiro\n");
-  this->section_text.emplace_back("\tadd esp, 4\n");
-  this->writeChar = true;
-  this->writeString = true;
-  this->writeInteger = true;
-}
+// void translator::check_OUTPUT(std::deque<std::string> tokens){
+//   this->section_text.emplace_back("\tpush dword[" + tokens[3] + "]\n");
+//   this->section_text.emplace_back("\tcall EscreverInteiro\n");
+//   this->section_text.emplace_back("\tadd esp, 4\n");
+//   this->writeChar = true;
+//   this->writeString = true;
+//   this->writeInteger = true;
+// }
 
 void translator::LerChar(){
   this->section_text.emplace_back("LerChar:\n");
