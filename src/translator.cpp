@@ -225,7 +225,8 @@ void translator::check_C_OUTPUT(std::deque<std::string> tokens){
 }
 
 void translator::check_S_INPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tpush " + tokens[5] + "\n");
+  this->section_text.emplace_back("\tpush " + tokens[6] + "\n");
   this->section_text.emplace_back("\tcall LerString\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
   this->readChar = true;
@@ -278,6 +279,7 @@ void translator::LerString(){
   this->section_text.emplace_back("\tmov eax, 0\n");
   this->section_text.emplace_back("leitura_string:\n");
   this->section_text.emplace_back("\tmov ecx, [EBP+8]\n");
+  this->section_text.emplace_back("\tmov esi, [EBP+12]\n");
   this->section_text.emplace_back("\tmov ebx, eax\n");
   this->section_text.emplace_back("\tshl ebx, 2\n");
   this->section_text.emplace_back("\tadd ecx, ebx\n");
@@ -286,7 +288,7 @@ void translator::LerString(){
   this->section_text.emplace_back("\tadd esp, 4\n");
   this->section_text.emplace_back("\tinc eax\n");
   // add agora 2-linhas
-  this->section_text.emplace_back("\tcmp eax, 3\n");
+  this->section_text.emplace_back("\tcmp eax, esi\n");
   this->section_text.emplace_back("\tje return\n");
   this->section_text.emplace_back("\tcmp dword[ecx], 0xa\n");
   this->section_text.emplace_back("\tjne leitura_string\n");
