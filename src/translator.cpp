@@ -79,6 +79,7 @@ void translator::check_MUL(std::deque<std::string> tokens){
         this->section_text.emplace_back("\timul dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
         this->section_text.emplace_back("\tjbe ResultOverflow\n");
         this->writeOverflow = true;
+        this->writeString = true;
       }
       else
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);

@@ -1,14 +1,15 @@
-SECTION TEXT
-INPUT num
-load base
-mul ALTURA
-div DOIS
-STORE RES
-STOP
+triangulo: equ 1
+SECTION TEXT    ;linha dos dados
+
+        LOAD        B
+        MuL        H
+        IF TRIANGULO
+        DIV        DOIS
+        STORE        R
+        OUTPUT    R
+        STOP
 SECTION DATA
-BASE: CONST 3
-ALTURA: CONST 4
-DOIS: CONST 2
-SECTION BSS
-RES: SPACE
-num: space
+    B:    SPACE
+    H:    SPACE
+    R:    SPACE
+    DOIS:    CONST    2

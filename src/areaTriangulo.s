@@ -1,57 +1,64 @@
 section .text
 global _start
 _start:
-	push NUM
-	call LerInteiro
-	add esp, 4
-	mov eax, dword[BASE]
-	imul dword[ALTURA]
+	mov eax, dword[B]
+	imul dword[H]
 	jbe ResultOverflow
 	cdq
 	idiv dword[DOIS]
-	mov dword[RES], eax
+	mov dword[R], eax
+	push dword[R]
+	call EscreverInteiro
+	add esp, 4
 sys_exit:
 	mov eax, 1
 	mov ebx, 0
 	int 80h
-LerChar:
+EscreverChar:
 	enter 0, 0
 	pusha
-	mov eax, 3
-	mov ebx, 0
+	mov eax, 4
+	mov ebx, 1
 	mov ecx, [EBP+8]
 	mov edx, 1
 	int 80h
 	popa
 	leave
 	ret
-LerInteiro:
-	enter 5, 0
-	pusha
-	mov ebx, ebp
-	sub ebx, 1
-	mov dword[EBP-5], 0
-leitura_inteiro:
-	push ebx
-	call LerChar
+EscreverString:
+	enter 0, 0
+	push eax
+	mov eax, [EBP+8]
+escrita_string:
+	push eax
+	call EscreverChar
 	add esp, 4
-	cmp byte[EBP-1], 0xa
-	je fim_inteiro
-	mov eax, [EBP-5]
-	mov edx, eax
-	shl eax, 2
-	add eax, eax
-	add eax, edx
-	add eax, edx
-	mov [EBP-5], eax
-	mov eax, [EBP-1]
-	sub eax, 0x30
-	add [EBP-5], eax
-	jmp leitura_inteiro
-fim_inteiro:
-	mov eax, [EBP-5]
-	mov ebx, [EBP+8]
-	mov [ebx], eax
+	add eax, 4
+	cmp dword[eax], 0
+	jnz escrita_string
+	pop eax
+	add esp, 4
+	leave
+	ret
+EscreverInteiro:
+	enter 0, 0
+	pusha
+	mov ebx, esp
+	mov eax, [EBP+8]
+	mov edx, 0
+	push edx
+	mov ecx, 10
+escrita_inteiro:
+	mov edx, 0
+	div ecx
+	add edx, 0x30
+	push edx
+	cmp eax, 0
+	jnz escrita_inteiro
+	push esp
+	call EscreverString
+	add esp, 4
+	mov esp, ebx
 	popa
 	leave
 	ret
@@ -63,10 +70,8 @@ ResultOverflow:
 
 section .data
 OVERFLOW dd 'o', 'v', 'e', 'r', 'f', 'l', 'o', 'w'
-BASE dd 3
-ALTURA dd 4
 DOIS dd 2
 
-section .bss
-RES resd 1
-NUM resd 1
+B resd 1
+H resd 1
+R resd 1
