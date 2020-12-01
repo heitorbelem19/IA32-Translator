@@ -238,7 +238,7 @@ void translator::check_S_INPUT(std::deque<std::string> tokens){
 }
 
 void translator::check_S_OUTPUT(std::deque<std::string> tokens){
-  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tpush " + tokens[6] + "\n");
   this->section_text.emplace_back("\tcall EscreverString\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
   this->writeChar = true;
