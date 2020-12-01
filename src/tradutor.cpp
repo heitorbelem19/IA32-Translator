@@ -9,28 +9,31 @@ int main(int argc, char** argv){
     Salva na instância uploaded_file_stream;
   */
   std::regex remove_extension_reg("(.asm)");
-  std::string output_file_name = argv[2];
+  std::string output_file_name = argv[1];
 
-  io_manager file_input(argv[2]);
+  // Lê arquivo .asm
+  io_manager file_input(argv[1]);
   std::vector<std::string> uploaded_file = file_input.get_uploaded_file();
   
-  if(strcmp(argv[1], "-p") == 0){
-    // Faz o pre processamento do arquivo .asm
-    pre_processor pre_processamento;
-    pre_processamento.process(uploaded_file);
-    std::ofstream pre_process_file;
-    std::string file_out = std::regex_replace(output_file_name, remove_extension_reg, ".PRE");
-    pre_process_file.open(file_out);
-    for(int i=0; i<uploaded_file.size(); i++){
-      pre_process_file << uploaded_file[i] << '\n';
-    }
-    pre_process_file.close();
-    translator tradutor;
-    tradutor.translate(uploaded_file, output_file_name);
+  // faz pre processamento
+  pre_processor pre_processamento;
+  pre_processamento.process(uploaded_file);
+  
+  // cria arquivo .PRE
+  std::ofstream pre_process_file;
+  std::string file_out = std::regex_replace(output_file_name, remove_extension_reg, ".PRE");
+  
+  // escreve no arquivo .PRE
+  pre_process_file.open(file_out);
+  for(int i=0; i<uploaded_file.size(); i++){
+    pre_process_file << uploaded_file[i] << '\n';
   }
-  else{
-    std::cout << "Diretiva invalida\n";
-  }
+  pre_process_file.close();
+
+  // traduz do .PRE em assembly inventado para o .s em IA-32
+  translator tradutor;
+  tradutor.translate(uploaded_file, output_file_name);
+  
   
   return 0;
 }
