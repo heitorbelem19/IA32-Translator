@@ -224,21 +224,21 @@ void translator::check_C_OUTPUT(std::deque<std::string> tokens){
   this->writeChar = true;
 }
 
-// void translator::check_S_INPUT(std::deque<std::string> tokens){
-//   this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
-//   this->section_text.emplace_back("\tcall LerString\n");
-//   this->section_text.emplace_back("\tadd esp, 4\n");
-//   this->readChar = true;
-//   this->readString = true;
-// }
+void translator::check_S_INPUT(std::deque<std::string> tokens){
+  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcall LerString\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->readChar = true;
+  this->readString = true;
+}
 
-// void translator::check_S_OUTPUT(std::deque<std::string> tokens){
-//   this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
-//   this->section_text.emplace_back("\tcall EscreverString\n");
-//   this->section_text.emplace_back("\tadd esp, 4\n");
-//   this->writeChar = true;
-//   this->writeString = true;
-// }
+void translator::check_S_OUTPUT(std::deque<std::string> tokens){
+  this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
+  this->section_text.emplace_back("\tcall EscreverString\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->writeChar = true;
+  this->writeString = true;
+}
 
 void translator::check_INPUT(std::deque<std::string> tokens){
   this->section_text.emplace_back("\tpush " + tokens[3] + "\n");
@@ -285,9 +285,14 @@ void translator::LerString(){
   this->section_text.emplace_back("\tcall LerChar\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
   this->section_text.emplace_back("\tinc eax\n");
+  // add agora 2-linhas
+  this->section_text.emplace_back("\tcmp eax, 3\n");
+  this->section_text.emplace_back("\tje return\n");
   this->section_text.emplace_back("\tcmp dword[ecx], 0xa\n");
   this->section_text.emplace_back("\tjne leitura_string\n");
   this->section_text.emplace_back("\tmov dword[ecx], 0\n");
+  // add agora 1-linha
+  this->section_text.emplace_back("\treturn:");
   this->section_text.emplace_back("\tpopa\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
   this->section_text.emplace_back("\tleave\n");
@@ -490,16 +495,16 @@ void translator::translate(std::vector<std::string> &uploaded_file, std::string 
             this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_C_OUTPUT(tokens);
         }
-        // else if(tokens[2] == "S_INPUT"){
-        //   if(!tokens[1].empty())
-        //     this->section_text.emplace_back(tokens[1] + ":\n");
-        //   this->check_S_INPUT(tokens);
-        // }
-        // else if(tokens[2] == "S_OUTPUT"){
-        //   if(!tokens[1].empty())
-        //     this->section_text.emplace_back(tokens[1] + ":\n");
-        //   this->check_S_OUTPUT(tokens);
-        // }
+        else if(tokens[2] == "S_INPUT"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ":\n");
+          this->check_S_INPUT(tokens);
+        }
+        else if(tokens[2] == "S_OUTPUT"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ":\n");
+          this->check_S_OUTPUT(tokens);
+        }
         else if(tokens[2] == "INPUT"){
           if(!tokens[1].empty())
             this->section_text.emplace_back(tokens[1] + ":\n");

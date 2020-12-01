@@ -43,8 +43,8 @@ private:
 
   void check_C_INPUT(std::deque<std::string> tokens);
   void check_C_OUTPUT(std::deque<std::string> tokens);
-  // void check_S_INPUT(std::deque<std::string> tokens);
-  // void check_S_OUTPUT(std::deque<std::string> tokens);
+  void check_S_INPUT(std::deque<std::string> tokens);
+  void check_S_OUTPUT(std::deque<std::string> tokens);
   void check_INPUT(std::deque<std::string> tokens);
   // void check_OUTPUT(std::deque<std::string> tokens);
 
