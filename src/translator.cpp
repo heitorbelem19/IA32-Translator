@@ -71,14 +71,18 @@ void translator::check_MUL(std::deque<std::string> tokens){
   else{
     if(tokens[4].empty()) {
       this->section_text.emplace_back("\timul dword["+ tokens[3] + "]\n");
-      // this->section_text.emplace_back("\tjbe ResultOverflow\n");
-      // this->writeOverflow = true;
+      this->section_text.emplace_back("\tjbe ResultOverflow\n");
+      this->writeChar = true;
+      this->writeString = true;
+      this->writeOverflow = true;
     } 
     else {
       if(check_operator(tokens[4]) && check_offset(tokens[5])){
         this->section_text.emplace_back("\timul dword[" + tokens[3] + tokens[4] + "4*" + tokens[5] + "]\n");
-        // this->section_text.emplace_back("\tjbe ResultOverflow\n");
-        // this->writeOverflow = true;
+        this->section_text.emplace_back("\tjbe ResultOverflow\n");
+        this->writeChar = true;
+        this->writeString = true;
+        this->writeOverflow = true;
       }
       else
         std::cout << ("ERRO: Operacao invalida na instrucao '%s'\n", tokens[0]);
@@ -249,14 +253,14 @@ void translator::check_INPUT(std::deque<std::string> tokens){
   this->readInteger = true;
 }
 
-// void translator::check_OUTPUT(std::deque<std::string> tokens){
-//   this->section_text.emplace_back("\tpush dword[" + tokens[3] + "]\n");
-//   this->section_text.emplace_back("\tcall EscreverInteiro\n");
-//   this->section_text.emplace_back("\tadd esp, 4\n");
-//   this->writeChar = true;
-//   this->writeString = true;
-//   this->writeInteger = true;
-// }
+void translator::check_OUTPUT(std::deque<std::string> tokens){
+  this->section_text.emplace_back("\tpush dword[" + tokens[3] + "]\n");
+  this->section_text.emplace_back("\tcall EscreverInteiro\n");
+  this->section_text.emplace_back("\tadd esp, 4\n");
+  this->writeChar = true;
+  this->writeString = true;
+  this->writeInteger = true;
+}
 
 void translator::LerChar(){
   this->section_text.emplace_back("LerChar:\n");
@@ -287,13 +291,11 @@ void translator::LerString(){
   this->section_text.emplace_back("\tcall LerChar\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
   this->section_text.emplace_back("\tinc eax\n");
-  // add agora 2-linhas
   this->section_text.emplace_back("\tcmp eax, esi\n");
   this->section_text.emplace_back("\tje return\n");
   this->section_text.emplace_back("\tcmp dword[ecx], 0xa\n");
   this->section_text.emplace_back("\tjne leitura_string\n");
   this->section_text.emplace_back("\tmov dword[ecx], 0\n");
-  // add agora 1-linha
   this->section_text.emplace_back("\treturn:");
   this->section_text.emplace_back("\tpopa\n");
   this->section_text.emplace_back("\tadd esp, 4\n");
@@ -512,11 +514,11 @@ void translator::translate(std::vector<std::string> &uploaded_file, std::string 
             this->section_text.emplace_back(tokens[1] + ":\n");
           this->check_INPUT(tokens);
         }
-        // else if(tokens[2] == "OUTPUT"){
-        //   if(!tokens[1].empty())
-        //     this->section_text.emplace_back(tokens[1] + ":\n");
-        //   this->check_OUTPUT(tokens);
-        // }
+        else if(tokens[2] == "OUTPUT"){
+          if(!tokens[1].empty())
+            this->section_text.emplace_back(tokens[1] + ":\n");
+          this->check_OUTPUT(tokens);
+        }
       }
       catch(std::exception exc){
         printf("Exceção gerada '%s'\tLinha %d\n", exc.what(), i+1);
